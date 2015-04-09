@@ -51,4 +51,19 @@ CollectionDriver.prototype.get = function(collectionName, id, callback) { //A
     });
 };
 
+// save a new object (aka post to the database)
+CollectionDriver.prototype.save = function(collectionName, obj, callback) {
+  this.getCollection(collectionName, function(error, the_collection) {
+    if (error) {
+      callback(error)
+    }
+    else {
+      obj.created_at = new Date();
+      the_collection.insert(obj, function() {
+        callback(null, obj);
+      });
+    }
+  });
+};
+
 exports.CollectionDriver = CollectionDriver;

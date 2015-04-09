@@ -16,6 +16,8 @@ app.set('views', path.join(__dirname, 'views'));
 // set view engine to Jade
 app.set('view engine', 'jade');
 
+app.use(express.bodyParser());
+
 // Set Mongo & Collection Driver vars
 var mongoHost = 'localHost';
 var mongoPort = 27017;
@@ -67,6 +69,21 @@ app.get('/:collection/:entity', function(req, res) {
   } else {
     res.send(400, {error: 'Bad url, sorry', url: req.url});
   }
+});
+
+// Post a collection to DB (references prototype.save method)
+// inserts the body as an object in the specified collection
+app.post('/:collection', function(req, res) {
+  var object = req.body;
+  var collection = req.params.collection;
+  collectionDriver.save(collection, object, function(error, docs) {
+    if (error) {
+      res.send(400, err);
+    }
+    else {
+      res.send(201, docs);
+    }
+  });
 });
 
 // Catch-all route for error handling
