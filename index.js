@@ -33,18 +33,41 @@ mongoClient.open(function(err, mongoClient) {
 });
 
 // site root Route Handler
-app.get('/', function (req, res) {
-  res.send('<html><body><h1>Hello World</h1></body></html>');
+app.get('/:collection', function (req, res) {
+  var params = req.params;
+  collectionDriver.findAll(req.params.collection, function (error, objs) {
+      if (error) {
+        res.send(400, error);
+      }
+        else {
+          if (req.accepts('html')) {
+            res.render('data', {objects: objs, collection: req.params.collection});
+          } else {
+            res.set('Content-Type', 'application/json');
+            res.send(200, objs);
+          }
+        }
+  });
 });
 
-// Dynamic Routing (takes up to 3 path lvls, 
-//  displays path components in the response body)
-// suffix w/ '?' -> optional params matches /files/:filename and /files
-// prefix w/ ':' -> matches /files/:filename (e.g. /foo) but not /files
-  // EXAMPLE:
-  // app.get('/:a?/:b?/:c?', function (req, res) {
-  //   res.send(req.params.a + ' ' + req.params.b + ' ' + req.params.c);
-  // });
+app.get('/:collection/:entity', function(req, res) {
+  var params = req.params;
+  var entity = params.entity;
+  var collection = params.collection;
+
+  if (entity) {
+    collectionDriver.get(collection, entity, function(error, objs) {
+        if (error) {
+          res.send(400, error);
+        }
+        else {
+          res.send(200, objs);
+        }
+    });
+  } else {
+    res.send(400, {error: 'Bad url, sorry', url: req.url});
+  }
+});
 
 // Catch-all route for error handling
 // displays a 404 error when the requested content can't be found
