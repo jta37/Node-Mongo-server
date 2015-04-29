@@ -66,4 +66,39 @@ CollectionDriver.prototype.save = function(collectionName, obj, callback) {
   });
 };
 
+// Update an object
+CollectionDriver.prototype.update = function(collectionName, obj, entityId, callback) {
+  this.getCollection(collectionName, function(error, the_collection) {
+    if (error) {
+      callback(error)
+    }
+    else {
+      obj._id = ObjectID(entityId); // convert to a real Obj Id
+      obj.updated_at = new Date();
+      the_collection.save (obj, function (error, doc) {
+        if (error)
+          callback(error);
+        else
+          callback(null, obj);
+      });
+    }
+  });
+};
+
+// Delete an Object from a collection
+CollectionDriver.prototype.delete = function(collectionName, entityId, callback) {
+  this.getCollection(collectionName, function(error, the_collection) {
+    if (error)
+      callback(error);
+    else {
+      the_collection.remove({'_id' :ObjectID(entityId)}, function(error, doc) {
+        if (error)
+          callback(error);
+        else
+          callback(null, doc);
+      });
+    }
+  });
+};
+
 exports.CollectionDriver = CollectionDriver;
